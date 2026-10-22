@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess</title>
+    <style>
+        html, body {
+            background-color:white;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden;
+}
+        canvas{
+            background-image: linear-gradient();
+        }
+        #white_player_type{
+            text-align: center;
+            background-color: gray;
+            position: absolute;
+            width: 200px;
+            height:50px;
+            top: 300px;
+            left: 750px;
+        }   
+        #black_player_type{
+            text-align: center;
+            background-color: gray;
+            position: absolute;
+            width: 200px;
+            height:50px;
+            top: 300px;
+            left: 1050px;
+        }   
+        button{
+            position: absolute;
+            top: 400px;
+            left: 750px;
+            width: 500px;
+            height: 50px;
+            background-color: gray;
+        }
+    </style>
+</head>
+<body onclick="cord(event)" onmousemove="cord2(event)">
+    <canvas id="canvas"></canvas>
+    <select id="white_player_type" onchange="white_player_type=this.value">
+        <option value="player">Alb: Om</option>
+        <option value="bot">Alb: Robot</option>
+    </select>
+    <select id="black_player_type" onchange="black_player_type=this.value">
+        <option value="player">Negru: Om</option>
+        <option value="bot">Negru: Robot</option>
+    </select>
+    <button onclick="initialize()">Reinitializare</button>
+    <script>
+
+        //setam dimensiunile canvas-ului
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        //functii de desenare
+        function rect(xi,yi,xf,yf,color){
+            var  e=document.getElementById('canvas');
+            var ctx=e.getContext('2d');
+            ctx.fillStyle=color;
+            ctx.beginPath()
+            ctx.fillRect(xi,yi,xf-xi,yf-yi)
+            ctx.fill()
+            ctx.stroke()
+        }
+        function text2(x,y,text,color){
+            var canvas = document.getElementById("canvas");
+            var ctx = canvas.getContext("2d");
+            ctx.fillStyle = color;
+            ctx.font = "20px Calibri";
+            ctx.fillText(text, x, y);
+        }
+        function pol4(x1,y1,x2,y2,x3,y3,x4,y4,color){
+            var e = document.getElementById("canvas");
+            var ctx = e.getContext("2d");
+            ctx.beginPath();
+            ctx.moveTo(x1,y1);
+            ctx.lineTo(x2,y2);
+            ctx.lineTo(x3,y3);
+            ctx.lineTo(x4,y4);
+            ctx.closePath();
+            ctx.fillStyle=color;
+            ctx.fill();    
+        }
+        //declaram variabila outline_color
+        var outline_color="#171321";
+        //functii care deseneaza piesele
+        function piece_base(x,y,color){
+            rect(x+14,y+52,x+46,y+54,outline_color)
+            rect(x+12,y+48,x+14,y+52,outline_color)
+            rect(x+46,y+48,x+48,y+52,outline_color)
+            rect(x+14,y+46,x+46,y+48,outline_color)
+            rect(x+14,y+48,x+46,y+52,color)
+        }
+        function pion(x,y,color){
+            piece_base(x,y,color)
+            rect(x+12,y+42,x+14,y+46,outline_color)
+            rect(x+14,y+42,x+46,y+46,color)
+            rect(x+46,y+42,x+48,y+46,outline_color)
+
+            rect(x+14,y+40,x+16,y+42,outline_color)
+            rect(x+16,y+40,x+44,y+42,color)
+            rect(x+44,y+40,x+46,y+42,outline_color)
+
+            rect(x+16,y+38,x+18,y+40,outline_color)
+            rect(x+18,y+38,x+42,y+40,color)
+            rect(x+42,y+38,x+44,y+40,outline_color)
+
+            rect(x+18,y+34,x+20,y+38,outline_color)
+            rect(x+20,y+34,x+40,y+38,color)
+            rect(x+40,y+34,x+42,y+38,outline_color)
+
+            rect(x+20,y+26,x+22,y+34,outline_color)
+            rect(x+22,y+26,x+38,y+34,color)
+            rect(x+38,y+26,x+40,y+34,outline_color)
+
+            rect(x+22,y+24,x+24,y+26,outline_color)
+            rect(x+24,y+24,x+36,y+26,color)
+            rect(x+36,y+24,x+38,y+26,outline_color)
+
+            rect(x+24,y+22,x+36,y+24,outline_color)
+            rect(x+22,y+10,x+24,y+22,outline_color)
+            rect(x+36,y+10,x+38,y+22,outline_color)
+            rect(x+24,y+8,x+36,y+10,outline_color)
+
+            rect(x+24,y+10,x+36,y+22,color)
+        }
+        function tura(x,y,color){
+            piece_base(x,y,color)
+
+            rect(x+12,y+42,x+14,y+46,outline_color)
+            rect(x+14,y+42,x+46,y+46,color)
+            rect(x+46,y+42,x+48,y+46,outline_color)
+
+            rect(x+14,y+40,x+16,y+42,outline_color)
+            rect(x+16,y+40,x+44,y+42,color)
+            rect(x+44,y+40,x+46,y+42,outline_color)
+
+            rect(x+16,y+38,x+18,y+40,outline_color)
+            rect(x+18,y+38,x+42,y+40,color)
+            rect(x+42,y+38,x+44,y+40,outline_color)
+
+            rect(x+18,y+24,x+20,y+38,outline_color)
+            rect(x+20,y+24,x+40,y+38,color)
+            rect(x+40,y+24,x+42,y+38,outline_color)
+
+            rect(x+18,y+22,x+42,y+24,outline_color)
+
+            rect(x+16,y+20,x+18,y+22,outline_color)
+            rect(x+18,y+20,x+42,y+22,color)
+            rect(x+42,y+20,x+44,y+22,outline_color)
+
+            rect(x+14,y+16,x+16,y+20,outline_color)
+            rect(x+16,y+16,x+44,y+20,color)
+            rect(x+44,y+16,x+46,y+20,outline_color)
+
+            rect(x+12,y+10,x+14,y+16,outline_color)
+            rect(x+46,y+10,x+48,y+16,outline_color)
+
+            rect(x+14,y+10,x+20,y+16,color)
+            rect(x+40,y+10,x+46,y+16,color)
+
+            rect(x+12,y+8,x+20,y+10,outline_color)
+            rect(x+40,y+8,x+48,y+10,outline_color)
+
+            rect(x+20,y+10,x+22,y+16,outline_color)
+            rect(x+38,y+10,x+40,y+16,outline_color)
+
+            rect(x+22,y+16,x+28,y+18,outline_color)
+            rect(x+32,y+16,x+38,y+18,outline_color)
+
+            rect(x+26,y+10,x+28,y+16,outline_color)
+            rect(x+32,y+10,x+34,y+16,outline_color)
+
+            rect(x+28,y+10,x+32,y+16,color)
+
+            rect(x+28,y+8,x+32,y+10,outline_color)
+        }
+        function cal(x,y,color){
+            piece_base(x,y,color)
+
+            rect(x+14,y+44,x+16,y+46,outline_color)
+            rect(x+16,y+44,x+44,y+46,color)
+            rect(x+44,y+44,x+46,y+46,outline_color)
+
+            rect(x+12,y+42,x+14,y+44,outline_color)
+            rect(x+14,y+42,x+44,y+44,color)
+            rect(x+44,y+42,x+46,y+44,outline_color)
+
+            rect(x+12,y+38,x+14,y+42,outline_color)
+            rect(x+14,y+38,x+42,y+42,color)
+            rect(x+42,y+38,x+44,y+42,outline_color)
+
+            rect(x+14,y+34,x+16,y+38,outline_color)
+            rect(x+16,y+34,x+42,y+38,color)
+            rect(x+42,y+34,x+44,y+38,outline_color)
+
+            rect(x+16,y+32,x+18,y+34,outline_color)
+            rect(x+18,y+32,x+40,y+34,color)
+            rect(x+40,y+32,x+42,y+34,outline_color)
+
+            rect(x+18,y+30,x+20,y+32,outline_color)
+            rect(x+20,y+30,x+40,y+32,color)
+            rect(x+40,y+30,x+42,y+32,outline_color)
+
+            rect(x+20,y+28,x+22,y+30,outline_color)
+            rect(x+22,y+28,x+40,y+30,color)
+            rect(x+40,y+28,x+42,y+30,outline_color)
+
+            rect(x+22,y+24,x+24,y+28,outline_color)
+            rect(x+24,y+24,x+40,y+28,color)
+            rect(x+40,y+24,x+42,y+28,outline_color)
+
+            rect(x+16,y+22,x+24,y+24,outline_color)
+            rect(x+10,y+24,x+16,y+26,outline_color)
+
+            rect(x+8,y+22,x+10,y+24,outline_color)
+            rect(x+10,y+20,x+14,y+22,outline_color)
+            rect(x+8,y+16,x+10,y+20,outline_color)
+            rect(x+10,y+14,x+18,y+16,outline_color)
+            rect(x+18,y+12,x+22,y+14,outline_color)
+            rect(x+22,y+10,x+24,y+12,outline_color)
+            rect(x+24,y+6,x+26,y+10,outline_color)
+            rect(x+26,y+6,x+28,y+8,outline_color)
+            rect(x+28,y+8,x+32,y+10,outline_color)
+            rect(x+32,y+10,x+36,y+12,outline_color)
+            rect(x+36,y+12,x+38,y+14,outline_color)
+            rect(x+38,y+14,x+40,y+16,outline_color)
+            rect(x+40,y+16,x+42,y+24,outline_color)
+
+            rect(x+24,y+22,x+40,y+24,color)
+            rect(x+14,y+20,x+40,y+22,color)
+            rect(x+10,y+22,x+16,y+24,color)
+            rect(x+10,y+16,x+40,y+20,color)
+            rect(x+18,y+14,x+38,y+16,color)
+            rect(x+22,y+12,x+36,y+14,color)
+            rect(x+24,y+10,x+32,y+12,color)
+            rect(x+26,y+8,x+28,y+10,color)
+
+            rect(x+24,y+14,x+30,y+16,outline_color)
+            rect(x+22,y+16,x+28,y+18,outline_color)
+
+            rect(x+24,y+20,x+42,y+26,color)
+            rect(x+42,y+20,x+44,y+26,outline_color)
+
+            //rect(x+24,y+24,x+40,y+28,color)
+            //rect(x+40,y+24,x+42,y+28,outline_color)
+        }
+        function nebun(x,y,color){
+            piece_base(x,y,color)
+            rect(x+12,y+42,x+14,y+46,outline_color)
+            rect(x+14,y+42,x+46,y+46,color)
+            rect(x+46,y+42,x+48,y+46,outline_color)
+
+            rect(x+14,y+40,x+16,y+42,outline_color)
+            rect(x+16,y+40,x+44,y+42,color)
+            rect(x+44,y+40,x+46,y+42,outline_color)
+
+            rect(x+16,y+38,x+18,y+40,outline_color)
+            rect(x+18,y+38,x+42,y+40,color)
+            rect(x+42,y+38,x+44,y+40,outline_color)
+
+            rect(x+18,y+36,x+42,y+38,outline_color)
+
+            rect(x+16,y+32,x+18,y+36,outline_color)
+            rect(x+18,y+32,x+42,y+36,color)
+            rect(x+42,y+32,x+44,y+36,outline_color)
+
+            rect(x+14,y+26,x+16,y+32,outline_color)
+            rect(x+16,y+26,x+44,y+32,color)
+            rect(x+44,y+26,x+46,y+32,outline_color)
+
+            rect(x+12,y+18,x+14,y+26,outline_color)
+            rect(x+14,y+18,x+46,y+26,color)
+            rect(x+46,y+18,x+48,y+26,outline_color)
+
+            rect(x+14,y+14,x+16,y+18,outline_color)
+            rect(x+16,y+14,x+44,y+18,color)
+            rect(x+44,y+14,x+46,y+18,outline_color)
+
+            rect(x+16,y+12,x+18,y+14,outline_color)
+            rect(x+18,y+12,x+42,y+14,color)
+            rect(x+42,y+12,x+44,y+14,outline_color)
+
+            rect(x+18,y+10,x+22,y+12,outline_color)
+            rect(x+22,y+10,x+38,y+12,color)
+            rect(x+38,y+10,x+42,y+12,outline_color)
+
+            rect(x+22,y+8,x+26,y+10,outline_color)
+            rect(x+26,y+8,x+34,y+10,color)
+            rect(x+34,y+8,x+38,y+10,outline_color)
+
+            rect(x+26,y+6,x+34,y+8,outline_color)
+
+            rect(x+28,y+16,x+32,y+28,outline_color)
+
+            rect(x+24,y+20,x+36,y+24,outline_color)
+        }
+        function rege(x,y,color){
+                piece_base(x,y,color)
+
+                rect(x+12,y+42,x+14,y+46,outline_color)
+                rect(x+14,y+42,x+46,y+46,color)
+                rect(x+46,y+42,x+48,y+46,outline_color)
+
+                rect(x+14,y+40,x+16,y+42,outline_color)
+                rect(x+16,y+40,x+44,y+42,color)
+                rect(x+44,y+40,x+46,y+42,outline_color)
+
+                rect(x+16,y+38,x+44,y+40,outline_color)
+
+                rect(x+14,y+36,x+16,y+38,outline_color)
+                rect(x+16,y+36,x+44,y+38,color)
+                rect(x+44,y+36,x+46,y+38,outline_color)
+
+                rect(x+12,y+32,x+14,y+36,outline_color)
+                rect(x+14,y+32,x+46,y+36,color)
+                rect(x+46,y+32,x+48,y+36,outline_color)
+
+                rect(x+10,y+22,x+12,y+32,outline_color)
+                rect(x+12,y+22,x+48,y+32,color)
+                rect(x+48,y+22,x+50,y+32,outline_color)
+
+                rect(x+12,y+20,x+14,y+22,outline_color)
+                rect(x+14,y+20,x+48,y+22,color)
+                rect(x+46,y+20,x+48,y+22,outline_color)
+
+                rect(x+12,y+20,x+14,y+22,outline_color)
+                rect(x+14,y+20,x+46,y+22,color)
+                rect(x+46,y+20,x+48,y+22,outline_color)
+
+                rect(x+14,y+18,x+22,y+20,outline_color)
+                rect(x+38,y+18,x+46,y+20,outline_color)
+
+                rect(x+22,y+20,x+28,y+22,outline_color)
+                rect(x+32,y+20,x+38,y+22,outline_color)
+
+                rect(x+26,y+22,x+28,y+24,outline_color)
+                rect(x+32,y+22,x+34,y+24,outline_color)
+
+                rect(x+28,y+24,x+32,y+28,outline_color)
+                rect(x+28,y+18,x+32,y+20,outline_color)
+        }
+        function regina(x,y,color){
+
+                piece_base(x,y,color)
+                rect(x+12,y+42,x+14,y+46,outline_color)
+                rect(x+14,y+42,x+46,y+46,color)
+                rect(x+46,y+42,x+48,y+46,outline_color)
+
+                rect(x+14,y+40,x+16,y+42,outline_color)
+                rect(x+16,y+40,x+44,y+42,color)
+                rect(x+44,y+40,x+46,y+42,outline_color)
+
+                rect(x+16,y+38,x+44,y+40,outline_color)
+
+                rect(x+16,y+36,x+18,y+38,outline_color)
+                rect(x+18,y+36,x+42,y+38,color)
+                rect(x+42,y+36,x+44,y+38,outline_color)
+
+                rect(x+18,y+30,x+20,y+36,outline_color)
+                rect(x+20,y+30,x+40,y+36,color)
+                rect(x+40,y+30,x+42,y+36,outline_color)
+
+                rect(x+16,y+26,x+18,y+30,outline_color)
+                rect(x+18,y+26,x+42,y+30,color)
+                rect(x+42,y+26,x+44,y+30,outline_color)
+
+                rect(x+14,y+22,x+16,y+26,outline_color)
+                rect(x+16,y+22,x+44,y+26,color)
+                rect(x+44,y+22,x+46,y+26,outline_color)
+
+                rect(x+12,y+20,x+14,y+22,outline_color)
+                rect(x+46,y+20,x+48,y+22,outline_color)
+
+                rect(x+14,y+20,x+18,y+22,color)
+                rect(x+42,y+20,x+46,y+22,color)
+
+                rect(x+10,y+18,x+12,y+20,outline_color)
+                rect(x+48,y+18,x+50,y+20,outline_color)
+
+                rect(x+10,y+16,x+16,y+18,outline_color)
+                rect(x+44,y+16,x+50,y+18,outline_color)
+
+                rect(x+12,y+18,x+16,y+20,color)
+                rect(x+44,y+18,x+48,y+20,color)
+
+                rect(x+16,y+18,x+18,y+20,outline_color)
+                rect(x+42,y+18,x+44,y+20,outline_color)
+
+                rect(x+18,y+20,x+20,y+22,outline_color)
+                rect(x+40,y+20,x+42,y+22,outline_color)
+
+                rect(x+20,y+20,x+40,y+22,color)
+
+                rect(x+20,y+12,x+22,y+20,outline_color)
+                rect(x+38,y+12,x+40,y+20,outline_color)
+
+                rect(x+22,y+16,x+38,y+20,color)
+
+                rect(x+18,y+10,x+20,y+12,outline_color)
+                rect(x+40,y+10,x+42,y+12,outline_color)
+
+                rect(x+18,y+8,x+24,y+10,outline_color)
+                rect(x+36,y+8,x+42,y+10,outline_color)
+
+                rect(x+24,y+10,x+26,y+12,outline_color)
+                rect(x+34,y+10,x+36,y+12,outline_color)
+
+                rect(x+22,y+12,x+26,y+16,color)
+                rect(x+34,y+12,x+38,y+16,color)
+
+                rect(x+26,y+12,x+28,y+16,outline_color)
+                rect(x+32,y+12,x+34,y+16,outline_color)
+
+                rect(x+20,y+10,x+24,y+12,color)
+                rect(x+36,y+10,x+40,y+12,color)
+
+                rect(x+28,y+16,x+32,y+18,outline_color)
+        }
+        //functie care deseneaza un semn pentru mutarile posibile
+        function selector(x,y,color){
+                var nuance=color;
+                if(color == "black"){
+                    nuance="#4d4d4d";
+                }
+                rect(x+45,y+35,x+48,y+46,nuance)
+                rect(x+35,y+45,x+46,y+48,nuance)
+
+                rect(x+5,y+4,x+2,y+15,nuance)
+                rect(x+4,y+5,x+15,y+2,nuance)
+
+                rect(x+45,y+4,x+48,y+15,nuance)
+                rect(x+35,y+5,x+46,y+2,nuance)
+
+                rect(x+5,y+35,x+2,y+46,nuance)
+                rect(x+4,y+45,x+15,y+48,nuance)
+        }
+        //functie care verifica daca mouse-ul este in interiorul unei zone
+        function is_mouse(x1,y1,x2,y2){
+                if(xmouse>x1 && xmouse<x2){
+                    if(ymouse>y1 && ymouse<y2){
+                        return 1;
+                    }
+                }
+            return 0;
+        }
+        //functie care returneaza culoarea complementara randului
+        function complementary(color){
+            if(color == "black"){
+                return "white";
+            }else if(color == "white"){
+                return "black";
+            }
+        }
+
+        //clase
+        class piece{
+        type="";
+        color="";
+
+            constructor(type,color){
+                this.type=type;
+                this.color=color;
+            }   
+        }
+        class move{
+            initial=new position(0,0);
+            final=new position(0,0);
+            constructor(initial,final){
+            this.initial=initial;
+            this.final=final;
+            }
+        }
+        class position{
+            x=0;
+            y=0;
+            constructor(x,y){
+            this.x=x;
+            this.y=y;
+            }
+        }
+        class piece_position{
+            pos=new position(0,0);
+            color=0;
+            constructor(x,y,color){
+                this.pos=new position(x,y);
+                this.color=color;
+            }
+        }
+
+
+        //declararea variabilelor
+        var pieces=[];
+        var mutariv=[];
+        var xmouse=0;
+        var ymouse=0;
+        var piesam=0;
+        var cpiesam=0;
+        var pmoved=0;
+        var rand='white';
+        var xpi=0;
+        var ypi=0;
+        var mouse_tile_x=0;
+        var mouse_tile_y=0;
+        var hover_color="#80949c";
+        var turn="white";
+        var clicked=0;
+        var selected_tile_x=0;
+        var selected_tile_y=0;
+        var piece_selected=0;
+        var pieces2=[];
+        var culori2=[];
+        var ticker=0;
+        var check_mate=0;
+        var draw=0;
+        var bot_position_i=new position(0,0);
+        var bot_position_f=new position(0,0);
+        var hover_color="#c2c2c2";
+        var pieces=[];
+        var white_player_type="player";
+        var black_player_type="bot";
+        document.getElementById("white_player_type").value=white_player_type;
+        document.getElementById("black_player_type").value=black_player_type;
+
+        //initializarea vectorului cu piese
+        for(var i=0;i<=9;i++){
+            pieces.push([]);
+            for(var j=0;j<=9;j++){
+                pieces[i].push(new piece(0,0));
+            }
+        }
+        //functie care pune o piese pe tabla
+        function fill(x,y,piesa,culoare){
+            pieces[y][x].type=piesa;
+            pieces[y][x].color=culoare;
+        }
+        //functie care initializeaza tabla
+        function initialize(){
+            for(var i=1;i<=8;i++){
+                for(var j=1;j<=8;j++){
+                    pieces[i][j]=new piece(0,0);
+                }
+            }
+            bot_position_f=new position(0,0);
+            bot_position_i=new position(0,0);
+            fill(1,1,'tura','black');
+            fill(8,1,'tura','black');
+            fill(2,1,'cal','black');
+            fill(7,1,'cal','black');
+            fill(3,1,'nebun','black');
+            fill(6,1,'nebun','black');
+            fill(4,1,'regina','black');
+            fill(5,1,'rege','black');
+            fill(1,8,'tura','white');
+            fill(8,8,'tura','white');
+            fill(2,8,'cal','white');
+            fill(7,8,'cal','white');
+            fill(3,8,'nebun','white');
+            fill(6,8,'nebun','white');
+            fill(4,8,'regina','white');
+            fill(5,8,'rege','white');
+            for(var i=1;i<=8;i++){
+                fill(i,2,'pion','black')
+                fill(i,7,'pion','white')
+            }
+        }
+        //functie care deseneaza tabla de sah 
+        function render_board(){
+            rect(0,0,1000,1000,'white')
+            rect(0,0,canvas.width,canvas.height,'#2e2e2e')
+            rect(50+50,100,560+50,610,'#4a1c00')
+            rect(60+50,110,550+50,600,'black')
+            var culori_tabla=['#ffb487','#4a1c00'];
+            culori_tabla[1]="#751b0d";
+            //culori_tabla[1]='#340078';
+            //culori_tabla[1]='#245c16';
+            //culori_tabla[0]='#fcb8bb';
+            for(var i=1;i<=8;i++){
+                for(var j=1;j<=8;j++){
+                    rect(i*60+5+50,j*60+5+50,i*60+60+5+50,j*60+60+5+50,culori_tabla[(i+j)%2])
+                    //text2(i*60+5+20,j*60+5+35,j*8+i,"white")
+                }
+            }
+        }
+        //funcite care desenaza bordura interfetei
+        function render_border(){
+            rect(50,20,52,690,"black")
+            rect(52,18,1450,20,"black")
+            rect(52,690,1450,692,"black")
+            rect(1450,20,1452,690,"black")
+        }
+        //functie care deseneaza un patrat de culoare diferita la pozitia mouse-ului
+        function render_hover(){
+            //hover_color="#e0b467";
+            for(var i=1;i<=8;i++){
+                for(var j=1;j<=8;j++){
+                    if(is_mouse(i*60+5+50,j*60+5+50,i*60+60+5+50,j*60+60+5+50)){
+                        if(pieces[j][i].type != 0  && pieces[j][i].color == turn){
+                            rect(i*60+5+50,j*60+5+50,i*60+60+5+50,j*60+60+5+50,hover_color)
+                        }
+                        mouse_tile_x=i;
+                        mouse_tile_y=j;
+                    }
+                }
+            }
+            if(!is_mouse(1*60+5+50,1*60+5+50,8*60+60+5+50,8*60+60+5+50)){
+                mouse_tile_x=0;
+                mouse_tile_y=0;
+            }
+        }
+        //functie care deseneaza piesele
+        function render_pieces(){
+            for(var i=1;i<=8;i++){
+                for(var j=1;j<=8;j++){
+                    if(pieces[j][i].type != 0){
+                        var render_color=0;
+                        if(pieces[j][i].color == "black"){
+                            render_color="#363636";
+                        }
+                        if(pieces[j][i].color == "white"){
+                            render_color="#ffffff";
+                        }
+                        window[pieces[j][i].type](i*60+5+50,j*60+5+50,render_color);
+                    }
+                }
+            }
+        }
+        //functie care deseneaza ultima mutare a calculatorului
+        function render_last_move(){
+            if(bot_position_i.x != 0 && bot_position_i.y != 0 && bot_position_f.x != 0 && bot_position_f.y != 0){
+                rect(bot_position_i.x*60+5+50,bot_position_i.y*60+5+50,bot_position_i.x*60+60+5+50,bot_position_i.y*60+60+5+50,"#7dd1ff")
+                rect(bot_position_f.x*60+5+50,bot_position_f.y*60+5+50,bot_position_f.x*60+60+5+50,bot_position_f.y*60+60+5+50,"#7dd1ff")
+            }
+        }
+        //functie care deseneaza toate pozitiile posibile unde poate fi mutata o piesa
+        function render_attack_positions(position1){
+            var moves=possible_moves(position1);
+            for(var idx=0;idx<moves.length;idx++){
+                var i=moves[idx].x;
+                var j=moves[idx].y;
+                selector(i*60+5+5+50,j*60+5+5+50,turn)
+            }
+        }
+        //functie care deseneaza un patrat rosu in cazul in care regele este in sah
+        function render_check(){
+            if(!check_king(find_king())){
+                rect(find_king().x*60+5+50,find_king().y*60+5+50,find_king().x*60+60+5+50,find_king().y*60+60+5+50,"red")
+            }
+        }
+        //functie care deseneaza patrate gri in caz de egalitate
+        function render_draw(){
+            if(draw == 1){
+                turn="white";
+                rect(find_king().x*60+5+50,find_king().y*60+5+50,find_king().x*60+60+5+50,find_king().y*60+60+5+50,"gray")
+                turn="black";
+                rect(find_king().x*60+5+50,find_king().y*60+5+50,find_king().x*60+60+5+50,find_king().y*60+60+5+50,"gray")
+            }
+        }
+        //functie care determina cat de mult poate fi mutata o piesa
+        function move_limit(piece){
+            if(piece == "cal" || piece == "rege" || piece == "pion"){
+                return 1;
+            }else if(piece == "pion_start"){
+                return 2;
+            }else{
+                return 8;
+            }
+        }
+        //functie care verifica daca piesa este pe tabla
+        function is_on_board(position){
+            if(position.x <= 0){
+                return 0;
+            }
+            if(position.x >= 9){
+                return 0;
+            }
+            if(position.y <= 0){
+                return 0;
+            }
+            if(position.y >= 9){
+                return 0;
+            }
+            return 1;
+        }
+        //functie care gaseste regele pe tabla
+        function find_king(){
+            for(var i=1;i<=8;i++){
+                for(var j=1;j<=8;j++){
+                    if(pieces[j][i].type == "rege" && pieces[j][i].color == turn){
+                        return new position(i,j);
+                    }
+                }
+            }
+            return new position(0,0);
+        }
+        //functie care verifica daca regele este in sah
+        function check_king(king_position){
+            var di=[0,1,1,1,0,-1,-1,-1,1,2,2,1,-1,-2,-2,-1];
+            var dj=[-1,-1,0,1,1,1,0,-1,-2,-1,1,2,2,1,-1,-2];
+            var ok=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+            var radius=1;
+            var radius_limit=10;
+            while(radius < radius_limit){
+                for(var i=0;i<16;i++){
+                    var checked_position=new position(king_position.x+di[i]*radius,king_position.y+dj[i]*radius);
+                    if(ok[i] == 0){
+                        if(!is_on_board(checked_position)){
+                            ok[i]=1;
+                        }else{
+                            if(radius == 1){
+                                //console.log("radius")
+                                //console.log(checked_position.x,checked_position.y,pieces[checked_position.y][checked_position.x].type,pieces[checked_position.y][checked_position.x].color,i)
+                                if(pieces[checked_position.y][checked_position.x].type == "cal" && pieces[checked_position.y][checked_position.x].color == complementary(turn) && i>=8){
+                                    return 0;
+                                }
+                                if((i == 1 || i == 7) && turn == "white" && pieces[checked_position.y][checked_position.x].type == "pion" && pieces[checked_position.y][checked_position.x].color == "black"){
+                                    return 0;
+                                }
+                                if((i == 3 || i == 5) && turn == "black" && pieces[checked_position.y][checked_position.x].type == "pion" && pieces[checked_position.y][checked_position.x].color == "white"){
+                                    return 0;
+                                }
+                                if(pieces[checked_position.y][checked_position.x].type == "rege" && pieces[checked_position.y][checked_position.x].color == complementary(turn) && i<8){
+                                    return 0;
+                                }
+                            }
+                            if(radius > 1){
+                                if(i>=8){
+                                if(pieces[checked_position.y][checked_position.x].type == "cal"){
+                                    ok[i]=1;
+                                }
+                                }
+                                if(i<8){
+                                if(pieces[checked_position.y][checked_position.x].type == "rege"){
+                                    ok[i]=1;
+                                }
+                                }
+                            }
+                            if(i<8 && ok[i] == 0){
+                                if(pieces[checked_position.y][checked_position.x].color == turn){
+                                    ok[i]=1;
+                                }
+                                if(pieces[checked_position.y][checked_position.x].color == complementary(turn) && !valid_direction(pieces[checked_position.y][checked_position.x].type,complementary(turn),i)){
+                                    ok[i]=1;
+                                }
+                                if(pieces[checked_position.y][checked_position.x].color == complementary(turn) && valid_direction(pieces[checked_position.y][checked_position.x].type,complementary(turn),i)){
+                                    return 0;
+                                }
+                            }
+                        }
+                    }
+                }
+                radius++;
+            }
+            return 1;
+        }
+        //functie care verifica daca o mutare duce la sah
+        function check_check(position1,position2){
+            //return 1;
+            var pieces_copy=[];
+            for(var i=0;i<=9;i++){
+            pieces_copy.push([]);
+                for(var j=0;j<=9;j++){
+                    pieces_copy[i].push(new piece(0,0));
+                }
+            }
+            for(var i=1;i<=8;i++){
+                for(var j=1;j<=8;j++){
+                    pieces_copy[j][i].type=pieces[j][i].type;
+                    pieces_copy[j][i].color=pieces[j][i].color;
+                }
+            }
+            make_move(position1,position2);
+            if(!check_king(find_king())){
+                for(var i=1;i<=8;i++){
+                    for(var j=1;j<=8;j++){
+                        pieces[j][i].type=pieces_copy[j][i].type;
+                        pieces[j][i].color=pieces_copy[j][i].color;
+                    }
+                }
+                return 0;
+            }
+            for(var i=1;i<=8;i++){
+                for(var j=1;j<=8;j++){
+                    pieces[j][i].type=pieces_copy[j][i].type;
+                    pieces[j][i].color=pieces_copy[j][i].color;
+                }
+            }
+            return 1;
+        }
+        //functie care verifica daca o piesa poate fi mutata pe o anumita directie
+        function valid_direction(piece,color,direction){
+            if(piece == "pion" || piece == 0){
+                return 0;
+            }
+            else if(piece == "cal"){
+                if(direction <8 ){
+                    return 0;
+                }
+            }
+            else if(piece == "tura"){
+                if(direction>7 || direction %2 == 1){
+                    return 0;
+                }
+            }
+            else if(piece == "nebun"){
+                if(direction>7 || direction %2 == 0){
+                    return 0;
+                }
+            }
+            else if(piece == "rege"){
+                if(direction>7){
+                    return 0;
+                }
+            }
+            else if(piece == "regina"){
+                if(direction>7){
+                    return 0;
+                }
+            }
+            return 1;
+        }
+        //functie care genereaza toate mutarile posibile pentru piesa de pe pozitia position1
+        function possible_moves(position1){
+            var di=[0,1,1,1,0,-1,-1,-1,1,2,2,1,-1,-2,-2,-1];
+            var dj=[-1,-1,0,1,1,1,0,-1,-2,-1,1,2,2,1,-1,-2];
+            var hovered_piece=pieces[position1.y][position1.x].type;
+            //var hovered_piece="cal";
+            var radius=0;
+            var direction_limit=[];
+            if(hovered_piece == "pion"){
+                for(var i=0;i<16;i++){
+                    direction_limit[i]=1;
+                }
+                var y=position1.y;
+                var x=position1.x;
+                if(pieces[y][x].color == "white"){
+                    if(pieces[y-1][x].type == 0){
+                        direction_limit[0]=0;
+                    }
+                    if(pieces[y-1][x-1].type != 0){
+                        direction_limit[7]=0;
+                    }
+                    if(pieces[y-1][x+1].type != 0){
+                        direction_limit[1]=0;
+                    }
+                }else if(pieces[y][x].color == "black"){
+                    if(pieces[y+1][x].type == 0){
+                        direction_limit[4]=0;
+                    }
+                    if(pieces[y+1][x-1].type != 0){
+                        direction_limit[5]=0;
+                    }
+                    if(pieces[y+1][x+1].type != 0){
+                        direction_limit[3]=0;
+                    }
+                }
+            }else{
+                for(var i=0;i<16;i++){
+                    if(!valid_direction(hovered_piece,turn,i)){
+                        direction_limit[i]=1;
+                    }
+                }
+            }
+            radius=1;
+            var radius_limit=move_limit(hovered_piece);
+            if(y == 2 && turn == "black" && hovered_piece == "pion"){
+                radius_limit=2;
+            }
+            if(y == 7 && turn == "white" && hovered_piece == "pion"){
+                radius_limit=2;
+            }
+            var moves=[];
+            while(radius <= radius_limit){
+                for(var i=0;i<16;i++){
+                    if(!direction_limit[i]){
+                        var checked_position_x=position1.x+di[i]*radius;
+                        var checked_position_y=position1.y+dj[i]*radius;
+                        if(!is_on_board(new position(checked_position_x,checked_position_y))){
+                            direction_limit[i]=1;
+                        }else if(pieces[checked_position_y][checked_position_x].type != 0){
+                            direction_limit[i]=1;
+                            if(pieces[checked_position_y][checked_position_x].color != turn){
+                                if(check_check(position1,new position(checked_position_x,checked_position_y))){
+                                    var bool1=(y == 7 && turn == "white" && hovered_piece == "pion" && (turn == "white" && i == 0));
+                                    var bool2=(y == 2 && turn == "black" && hovered_piece == "pion" && (turn == "black" && i == 4));
+                                    if(!(bool1 || bool2)){
+                                        moves.push(new position(checked_position_x,checked_position_y));
+                                    }
+                                }
+                            }
+                        }else{
+                            if(check_check(position1,new position(checked_position_x,checked_position_y))){
+                                moves.push(new position(checked_position_x,checked_position_y));
+                            }
+                        }
+                    }
+                }
+                radius++;
+            }
+            return moves;
+        }
+        //functie care normalizeaza un numar
+        function map(value,l1,r1,l2,r2){
+            return l2 + ((r2 - l2) / (r1 - l1)) * (value - l1);
+        }
+        //functie care face o mutare
+        function make_move(position1,position2){
+            pieces[position2.y][position2.x].type=pieces[position1.y][position1.x].type;
+            pieces[position2.y][position2.x].color=pieces[position1.y][position1.x].color;
+            pieces[position1.y][position1.x].type=0;
+            pieces[position1.y][position1.x].color=0;
+            check_promote();
+        }
+        //functie care asigura mutarea pieselor de catre jucator
+        function player_turn(){
+            if(clicked == 1 && piece_selected == 0 && pieces[mouse_tile_y][mouse_tile_x].color == turn){
+                piece_selected=1;
+                selected_tile_x=mouse_tile_x;
+                selected_tile_y=mouse_tile_y;
+                clicked=0;
+            }
+            if(clicked == 1 && piece_selected == 1){
+                var moves=possible_moves(new position(selected_tile_x,selected_tile_y))
+                for(var i=0;i<moves.length;i++){
+                    if(moves[i].x == mouse_tile_x && moves[i].y == mouse_tile_y){
+                        make_move(new position(selected_tile_x,selected_tile_y),new position(mouse_tile_x,mouse_tile_y))
+                        //console.log(evaluation(turn));
+                        turn=complementary(turn);
+                    }
+                }
+                piece_selected=0;
+                clicked=0;
+            }
+        }
+        //functie care evalueaza o pozitie
+    function evaluation(turn1){
+        var knight_position=[
+            [-5,-4,-3,-3,-3,-3,-4,-5],
+            [-4,-2, 0, 0, 0, 0,-2,-4],
+            [-3, 0, 1, 1, 1, 1, 0,-3],
+            [-3, 0, 1, 2, 2, 1, 0,-3],
+            [-3, 0, 1, 2, 2, 1, 0,-3],
+            [-3, 0, 1, 1, 1, 1, 0,-3],
+            [-4,-2, 0, 0, 0, 0,-2,-4],
+            [-5,-4,-3,-3,-3,-3,-4,-5]
+        ];
+        var bishop_postion = [
+            [0,  0,  0,  0,  0,  0,  0,  0],
+            [0,  0,  0,  0,  0,  0,  0,  0],
+            [0,  0,  0,  0,  0,  0,  0,  0],
+            [0, 10,  0,  0,  0,  0, 10,  0],
+            [5,  0, 10,  0,  0, 10,  0,  5],
+            [0, 10,  0, 10, 10,  0, 10,  0],
+            [0, 10,  0, 10, 10,  0, 10,  0],
+            [0,  0, -10, 0,  0,-10,  0,  0]
+        ];
+        var pawn_position = [];
+        for(var i=0;i<8;i++){
+            pawn_position.push([]);
+        }
+        for(var i=1;i<8;i++){
+            for(var j=0;j<8;j++){
+            pawn_position[i][j]=i*2-2;
+            }
+        }
+        var knight_position_score=0;
+        var bishop_position_score=0;
+        var pawn_position_score=0;
+        var center_score=0;
+        var position_score;
+        var material=0;
+        var material_f=0;
+        for(var i=1;i<=8;i++){
+            for(var j=1;j<=8;j++){
+                if(pieces[j][i].color == turn1){
+                    if(pieces[j][i].type == "pion"){
+                        pawn_position_score+=pawn_position[j-1][i-1];
+                        material+=1;
+                    }
+                    else if(pieces[j][i].type == "cal"){
+                        knight_position_score+=knight_position[j-1][i-1];
+                        material+=3;
+                    }
+                    else if(pieces[j][i].type == "nebun"){
+                        bishop_position_score+=bishop_postion[8-j][i-1];
+                        material+=3;
+                    }
+                    else if(pieces[j][i].type == "tura"){
+                        material+=5;
+                    }
+                    else if(pieces[j][i].type == "regina"){
+                        material+=9;
+                    }
+                    if(i>2 && j>2 && i<6 && j<6){
+                        center_score++;
+                    }
+                }
+            }
+        }
+        position_score=0.2*(knight_position_score)+0.1*(bishop_position_score)+0.1*pawn_position_score;
+        material_f=material;
+        material=0;
+        var material_o=0;
+        var op_pieces_cnt=0;
+        for(var i=1;i<=8;i++){
+            for(var j=1;j<=8;j++){
+                if(pieces[j][i].color == complementary(turn1)){
+                    op_pieces_cnt++;
+                    if(pieces[j][i].type == "pion"){
+                        material+=1;
+                    }
+                    else if(pieces[j][i].type == "cal"){
+                        material+=3;
+                    }
+                    else if(pieces[j][i].type == "nebun"){
+                        material+=3;
+                    }
+                    else if(pieces[j][i].type == "tura"){
+                        material+=5;
+                    }
+                    else if(pieces[j][i].type == "regina"){
+                        material+=9;
+                    }
+                }
+            }
+        }
+        material_o=material;
+        var random=Math.floor(Math.random()*10);
+        var check_f=0;
+        var king_edge_tropism=0;
+        if(op_pieces_cnt <= 6){
+            if(turn == complementary(turn1)){
+                check_f=+check_king(find_king());
+            }
+            if(turn == turn1){
+                check_f=-check_king(find_king());
+            }
+        }
+        var value=1*(material_f-material_o)+0.01*random+0.1*position_score+0.5*check_f+0.1*center_score;
+        return value;
+        
+    }
+    //functie care implementeaza algoritmul min-max
+    function evaluate_deep(bot_color,bot_turn,depth){
+        var turns=[complementary(bot_color),bot_color];
+        turn=turns[bot_turn];
+        if(depth == 0){
+            return evaluation(bot_color);
+        }
+        var pieces_copy=[];
+        for(var i=0;i<=9;i++){
+        pieces_copy.push([]);
+            for(var j=0;j<=9;j++){
+                pieces_copy[i].push(new piece(0,0));
+            }
+        }
+        for(var i=1;i<=8;i++){
+            for(var j=1;j<=8;j++){
+                pieces_copy[j][i].type=pieces[j][i].type;
+                pieces_copy[j][i].color=pieces[j][i].color;
+                
+            }
+        }
+        if(bot_turn == 1){
+            var eval=-1000;
+            for(var i=1;i<=8;i++){
+                for(var j=1;j<=8;j++){
+                    if(pieces[j][i].type != 0 && pieces[j][i].color == bot_color){
+                        var moves=possible_moves(new position(i,j));
+                        for(var k=0;k<moves.length;k++){
+                            var score=evaluate_deep(bot_color,(bot_turn+1)%2,depth-1);
+                            if(score>eval){
+                                eval=score;
+                            }
+                            for(var i1=1;i1<=8;i1++){
+                                for(var j1=1;j1<=8;j1++){
+                                    pieces[j1][i1].type=pieces_copy[j1][i1].type;
+                                    pieces[j1][i1].color=pieces_copy[j1][i1].color;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return eval;
+        }else if(bot_turn == 0){
+            var eval=1000;
+            for(var i=1;i<=8;i++){
+                for(var j=1;j<=8;j++){
+                    if(pieces[j][i].type != 0 && pieces[j][i].color == complementary(bot_color)){
+                        var moves=possible_moves(new position(i,j));
+                        for(var k=0;k<moves.length;k++){
+                            make_move(new position(i,j),moves[k])
+                            var score=evaluate_deep(bot_color,(bot_turn+1)%2,depth-1);
+                            if(score<eval){
+                                eval=score;
+                            }
+                            for(var i1=1;i1<=8;i1++){
+                                for(var j1=1;j1<=8;j1++){
+                                    pieces[j1][i1].type=pieces_copy[j1][i1].type;
+                                    pieces[j1][i1].color=pieces_copy[j1][i1].color;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return eval;
+        }
+    }
+    //functie care asigura mutarea pieselor de catre calculator
+    function bot_turn(bot_color,depth){
+        if(turn == bot_color){
+            var move_record=[];
+            var pieces_copy=[];
+            for(var i=0;i<=9;i++){
+            pieces_copy.push([]);
+                for(var j=0;j<=9;j++){
+                    pieces_copy[i].push(new piece(0,0));
+                }
+            }
+            for(var i=1;i<=8;i++){
+                for(var j=1;j<=8;j++){
+                    pieces_copy[j][i].type=pieces[j][i].type;
+                    pieces_copy[j][i].color=pieces[j][i].color;
+                    
+                }
+            }
+            var piece_position=new position(0,0);
+            var move_position=new position(0,0);
+            var max_eval=-10000;
+            var ok=0;
+            var move_found=0;
+            for(var i=1;i<=8;i++){ //trece prin fiecare rand
+                for(var j=1;j<=8;j++){ // trece prin fiecare coloana
+                    if(pieces[j][i].type != 0 && pieces[j][i].color == bot_color){ 
+                        // verificam daca pe pozitia (i,j) exista o piese de culoarea cu care joaca botul
+                        turn=bot_color;
+                        var moves=possible_moves(new position(i,j));
+                        // generam toate mutarile posibile pt piesa
+                        for(var k=0;k<moves.length;k++){
+                            ok=1;
+                            make_move(new position(i,j),moves[k])
+                            // jucam fiecare pozitie 
+                            var eval=evaluate_deep(bot_color,0,depth-1);
+                            console.log(eval,moves[k].x,moves[k].y,i,j);
+                            // evaluam un numar de depth miscari in viitor
+                            for(var i1=1;i1<=8;i1++){
+                                for(var j1=1;j1<=8;j1++){
+                                    pieces[j1][i1].type=pieces_copy[j1][i1].type;
+                                    pieces[j1][i1].color=pieces_copy[j1][i1].color;
+                                }
+                            }
+                            // readucem tabla la starea initiala 
+                            if(eval>max_eval){
+                                move_found=1;
+                                max_eval=eval;
+                                piece_position=new position(i,j);
+                                move_position=moves[k];
+                            }
+                            // daca mutarea duce intr-o stare mai buna o facem
+                        }
+                    }
+                }
+            }
+            for(var i=1;i<=8;i++){
+                for(var j=1;j<=8;j++){
+                    pieces[j][i].type=pieces_copy[j][i].type;
+                    pieces[j][i].color=pieces_copy[j][i].color;
+                }
+            }
+            if(move_found == 0 && ok == 1){
+                console.log("!!!!!!!!",max_eval)
+                for(var i=1;i<=8;i++){
+                    for(var j=1;j<=8;j++){
+                        if(pieces[j][i].type != 0 && pieces[j][i].color == bot_color){ 
+                            turn=bot_color;
+                            var moves=possible_moves(new position(i,j));
+                            for(var k=0;k<moves.length;k++){
+                                piece_position=new position(i,j);
+                                move_position=moves[k];
+                            }
+                        }
+                    }
+                }
+            }
+            if(ok == 0){
+                turn=bot_color;
+                if(check_king(find_king())){
+                    console.log("draw");
+                    draw=1;
+                }else{
+                    console.log("check_mate");
+                    check_mate=1;
+                }
+                return 0;
+            }
+            turn=bot_color;
+            make_move(piece_position,move_position)
+            bot_position_i=piece_position;
+            bot_position_f=move_position;
+            //console.log(max_eval)
+            turn=complementary(turn);
+        }        
+    }
+    //functie care numara piesele
+    function count_pieces(){
+        var cnt=0;
+        for(var i=1;i<=8;i++){
+            for(var j=1;j<=8;j++){
+                if(pieces[j][i].type != 0){
+                    cnt++;
+                }
+            }
+        }
+        return cnt;
+    }
+    //functie care verifica daca exista promovari
+    function check_promote(){
+        for(var i=1;i<=8;i++){
+            if(pieces[1][i].type == "pion"){
+                pieces[1][i].type="regina";
+            }
+            if(pieces[8][i].type == "pion"){
+                pieces[8][i].type="regina";
+            }
+        }
+    }
+    //functie care ruleaza jocul
+    function simulate_board(){
+        //afisam un despartitor intre informatiile din consola 
+        console.log("[--------------------]")
+
+        //desenam tabla de sah
+        render_board();
+
+        //
+        render_border();
+
+        if(white_player_type == "player" || black_player_type == "player"){
+            player_turn();
+        }
+
+        if(white_player_type == "bot"){
+            if(check_mate == 0 && draw == 0){
+                bot_turn("white",3);
+            }
+        }
+
+        if(black_player_type == "bot"){
+            if(check_mate == 0 && draw == 0){
+                bot_turn("black",3);
+            }
+        }
+
+        //desenam patrate gri sub regi in caz de egalitate
+        render_draw();
+
+        //desenam patrate rosii sub regi in caz de sah
+        render_check();
+
+        //desenam patrate gri deschis sub piesele deasupra carora trecem cu mouse-ul
+        render_hover();
+
+        //desenam patrate albastre semnificand ultima mutare
+        render_last_move();
+
+        //desenam piesele
+        render_pieces();
+
+        //in momentul in care dam click pe o piesa, se afiseaza toate mutarile posibile
+        if(pieces[mouse_tile_y][mouse_tile_x].color == turn && piece_selected == 0){
+            render_attack_positions(new position(mouse_tile_x,mouse_tile_y));
+        }
+        if(piece_selected == 1){
+            render_attack_positions(new position(selected_tile_x,selected_tile_y));
+        }
+        //setam variabila clicked la 0
+        if(clicked == 1){
+            clicked=0;
+        }
+    }
+    //functia globala care rueleaza continuu
+    function game(){
+        simulate_board();
+    }
+    //functii care determina coordonatele mouse-ului
+    function cord2(event){
+        xmouse=event.clientX;
+        ymouse=event.clientY;
+    }
+    function cord(event){
+        clicked=1;
+    }
+    // jocul propriu zis
+    initialize();
+    setInterval(game,200);
+    </script>
+</body>
+</html>
